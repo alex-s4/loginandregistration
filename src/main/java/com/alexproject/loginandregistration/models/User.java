@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,8 +27,9 @@ public class User {
     private Long id;
     
     
-    // @Pattern(regexp="{A-Za-z}*$", message="Username must contain letters only")
+    
 	// @NotEmpty(message="Username is required!")
+    @Pattern(regexp="[A-Za-z]*$", message="Username must contain letters only")
     @Size(min=3, max=30, message="Username must be between 3 and 30 characters")
     private String userName;
     
