@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.alexproject.loginandregistration.models.LoginUser;
 import com.alexproject.loginandregistration.models.User;
@@ -33,7 +34,7 @@ public class ViewController {
 
 	@PostMapping("/register")
 	public String createNewUser(@Valid @ModelAttribute("newUser") User newUser, 
-			BindingResult result, Model mv, HttpSession session)
+			BindingResult result, Model mv, HttpSession session, RedirectAttributes redirect)
 	{
 		
 		 
@@ -64,6 +65,9 @@ public class ViewController {
 			}
 			else
 			{
+				// Validation
+				redirect.addFlashAttribute("successRegistrationMessage", "Account created succesfully!");
+				
 				// Create a hash of the user's password to store in the database
 				String hashedPassword = BCrypt.hashpw(newUser.getPassword(), BCrypt.gensalt());
 				newUser.setPassword(hashedPassword);

@@ -42,6 +42,7 @@
 				</tr>
 			</table>
 		</form:form>
+		<p>${successRegistrationMessage}</p>
 	</div>
 	
 	<div>
