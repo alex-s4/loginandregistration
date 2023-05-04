@@ -1,5 +1,7 @@
 package com.alexproject.loginandregistration.controllers;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -10,11 +12,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.alexproject.loginandregistration.models.Book;
 import com.alexproject.loginandregistration.models.LoginUser;
 import com.alexproject.loginandregistration.models.User;
+import com.alexproject.loginandregistration.services.BookService;
 import com.alexproject.loginandregistration.services.UserService;
 
 @Controller
@@ -23,7 +29,11 @@ public class ViewController {
 	@Autowired
 	UserService userServ;
 	
+	@Autowired
+	BookService bookServ;
+	
 	@GetMapping("/")
+
 	public String index(Model mv)
 	{
 		mv.addAttribute("newUser", new User());
@@ -43,6 +53,7 @@ public class ViewController {
 			// Model layer validations
 //			mv.addAttribute("newUser", new User());
 			mv.addAttribute("newLogin", new LoginUser());
+			System.out.println("Register model layer validation error");
 			return "index.jsp";
 		}
 		else
@@ -89,6 +100,7 @@ public class ViewController {
 			// Model layer validations
 			mv.addAttribute("newUser", new User());
 //			mv.addAttribute("newLogin", new LoginUser());
+			System.out.println("Login model layer validation error");
 			return "index.jsp";
 		}
 		else
@@ -116,17 +128,93 @@ public class ViewController {
 				System.out.println("succesful login!");
 				System.out.println(userServ.validateIfExisting(newLogin.getEmail()).getId());
 				session.setAttribute("loggedUser", userServ.validateIfExisting(newLogin.getEmail()).getId());
-				return "redirect:/welcome";
+				return "redirect:/books";
 			}
 		}
 		
 	}
 
-	@GetMapping("/welcome")
+	@GetMapping("/books")
 	public String homePage(Model mv, HttpSession session)
 	{
+		List<Book> allBooks = bookServ.findAllBooks();
+		
 		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		mv.addAttribute("books", allBooks);
 		return "dashboard.jsp";
+	}
+	
+	@GetMapping("/books/new")
+	public String newBookPage(Model mv, HttpSession session)
+	{
+		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		mv.addAttribute("book", new Book());
+		return "addBook.jsp";
+	}
+	
+	@PostMapping("/createBook")
+	public String createBook(@Valid @ModelAttribute("book") Book newBook,
+			BindingResult result,
+			Model mv,
+			HttpSession session) 
+	{
+		if(result.hasErrors())
+		{
+			mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+			//System.out.println("some error");
+			return "addBook.jsp";
+		}
+		else
+		{
+			mv.addAttribute("book", new Book());
+			bookServ.createNewBook(newBook);
+			return "redirect:/books/new";
+		}
+	}
+	
+	@GetMapping("/books/{id}")
+	public String viewBookDetails(@PathVariable("id") Long bookId, Model mv, HttpSession session)
+	{
+		Book book = bookServ.findOneBook(bookId);
+		
+		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		mv.addAttribute("book", book);
+		return "bookDetails.jsp";
+	}
+	
+	@GetMapping("/books/{id}/edit")
+	public String editBookDetails(@PathVariable("id") Long bookId, Model mv, HttpSession session)
+	{
+		Book updatedBook = bookServ.findOneBook(bookId);
+		
+		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		mv.addAttribute("book", updatedBook);
+		return "editBook.jsp";
+	}
+	
+	@PutMapping("/books/{id}/edit")
+	public String editBook(
+			@Valid @ModelAttribute("book") Book updatedBook,
+			BindingResult result,
+			Model mv,
+			HttpSession session
+			)
+	{
+		
+		if(result.hasErrors())
+		{
+			mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+			
+			//System.out.println("Error");
+			//return "redirect:/books/"+updatedBook.getId()+"/edit";.
+			return "editBook.jsp";
+		}
+		else
+		{			
+			bookServ.updateBook(updatedBook);
+			System.out.println("Success");
+			return "redirect:/books/"+updatedBook.getId();
+		}
 	}
 	
 	@GetMapping("/logout")
@@ -136,6 +224,18 @@ public class ViewController {
 		mv.addAttribute("newLogin", new LoginUser());
 		session.removeAttribute("loggedUser");
 		return "redirect:/";
+	}
+	
+	@GetMapping("/deleteBook/{bookId}")
+	public String eraseBook(@PathVariable("bookId") Long id, Model mv, HttpSession session)
+	{
+		bookServ.deleteBook(id);
+		List<Book> allBooks = bookServ.findAllBooks();
+		
+		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		mv.addAttribute("books", allBooks);
+		
+		return "redirect:/books";
 	}
 
 
