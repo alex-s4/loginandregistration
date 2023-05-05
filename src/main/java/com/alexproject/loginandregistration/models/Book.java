@@ -1,6 +1,7 @@
 package com.alexproject.loginandregistration.models;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -47,29 +50,18 @@ public class Book {
     private User user;
     
     
-    public Book() {}
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+    		name="user_borrow",
+    		joinColumns=@JoinColumn(name="book_id"),
+    		inverseJoinColumns=@JoinColumn(name="user_id")
+    )
+    private List<User> borrowers;
     
     
-
-
-	/**
-	 * @param title
-	 * @param author
-	 * @param myThoughts
-	 * @param user
-	 */
-	public Book(@NotEmpty(message = "Book title is required!") String title,
-			@NotEmpty(message = "Author is required!") String author,
-			@NotEmpty(message = "Password is required!") String myThoughts, User user) {
-		super();
-		this.title = title;
-		this.author = author;
-		this.myThoughts = myThoughts;
-		this.user = user;
-	}
-
-
-
+	public Book() {}
+    
+    
 
 	public Long getId() {
 		return id;
@@ -139,7 +131,16 @@ public class Book {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
     
+	public List<User> getBorrowers() {
+		return borrowers;
+	}
+
+	public void setBorrowers(List<User> borrowers) {
+		this.borrowers = borrowers;
+	}
+
 	@PrePersist
     protected void onCreate(){
         this.createdAt = new Date();

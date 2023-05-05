@@ -40,7 +40,16 @@
 			</table>
 			<form:input type="hidden" path="user" value="${loggedUser.id}" />
 			
+			<c:forEach var="borrower" items="${book.getBorrowers()}">
+				<form:input type="hidden" path="borrowers" value="${borrower.getId()}" />
+			</c:forEach>
+			
+			
 		</form:form>
+		
+		<c:if test="${loggedUser.getId()==book.getUser().getId()}">
+			<a href="/deleteBook/${book.getId()}">DELETE BOOK</a>
+		</c:if>
 		
 	</div>
 </body> 

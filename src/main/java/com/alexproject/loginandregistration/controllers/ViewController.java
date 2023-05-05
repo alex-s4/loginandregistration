@@ -137,10 +137,16 @@ public class ViewController {
 	@GetMapping("/books")
 	public String homePage(Model mv, HttpSession session)
 	{
+		User activeUser = userServ.getOneUser((Long) session.getAttribute("loggedUser"));
 		List<Book> allBooks = bookServ.findAllBooks();
-		
-		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		List<Book> booksBorrowed = activeUser.getBooksBorrowed();
+				
+		mv.addAttribute("loggedUser", activeUser);
+		mv.addAttribute("booksBorrowed", booksBorrowed);
 		mv.addAttribute("books", allBooks);
+		
+		
+		
 		return "dashboard.jsp";
 	}
 	
@@ -186,9 +192,16 @@ public class ViewController {
 	public String editBookDetails(@PathVariable("id") Long bookId, Model mv, HttpSession session)
 	{
 		Book updatedBook = bookServ.findOneBook(bookId);
+		User activeUser = userServ.getOneUser((Long) session.getAttribute("loggedUser"));
 		
-		mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
+		mv.addAttribute("loggedUser", activeUser);
 		mv.addAttribute("book", updatedBook);
+		
+		for(User borrower : updatedBook.getBorrowers()) {
+			System.out.println(borrower.getUserName());
+		}
+		
+		
 		return "editBook.jsp";
 	}
 	
@@ -204,7 +217,7 @@ public class ViewController {
 		if(result.hasErrors())
 		{
 			mv.addAttribute("loggedUser", userServ.getOneUser((Long) session.getAttribute("loggedUser")));
-			
+			System.out.println(result.getAllErrors());
 			//System.out.println("Error");
 			//return "redirect:/books/"+updatedBook.getId()+"/edit";.
 			return "editBook.jsp";
@@ -237,6 +250,37 @@ public class ViewController {
 		
 		return "redirect:/books";
 	}
+	
+	
+	@GetMapping("/books/borrow/{id}")
+	public String borrowedBook(@PathVariable("id") Long bookId, Model mv, HttpSession session)
+	{
+		User activeUser = userServ.getOneUser((Long) session.getAttribute("loggedUser"));
+		mv.addAttribute("loggedUser", activeUser);	
+		Book bookToBorrow = bookServ.findOneBook(bookId);
+		userServ.borrowBook(activeUser, bookToBorrow);
+		
+		
+		System.out.println("Borrowed by:" + activeUser.getEmail() + " is book titled: " + bookToBorrow.getTitle());
+		
+		
+		return "redirect:/books";
+	}
+	
+	@GetMapping("/books/return/{id}")
+	public String returnedBook(@PathVariable("id") Long bookId, Model mv, HttpSession session)
+	{
+		User activeUser = userServ.getOneUser((Long) session.getAttribute("loggedUser"));
+		mv.addAttribute("loggedUser", activeUser);	
+		Book bookToReturn = bookServ.findOneBook(bookId);
+		userServ.returnBook(activeUser, bookToReturn);
+		
+		System.out.println("Returned by:" + activeUser.getEmail() + " is book titled: " + bookToReturn.getTitle());
+		
+		return "redirect:/books";
+	}
+	
+	
 
 
 }

@@ -9,6 +9,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -60,10 +63,23 @@ public class User {
     private List<Book> books;
     
     
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+    		name="user_borrow",
+    		joinColumns=@JoinColumn(name="user_id"),
+    		inverseJoinColumns=@JoinColumn(name="book_id")
+    )
+    private List<Book> booksBorrowed;
+    
+    
     public User() {}
 
-
+    
 	
+	
+
+
+
 	public Long getId() {
 		return id;
 	}
@@ -140,6 +156,15 @@ public class User {
 
 	public void setBooks(List<Book> books) {
 		this.books = books;
+	}
+	
+	
+	public List<Book> getBooksBorrowed() {
+		return booksBorrowed;
+	}
+
+	public void setBooksBorrowed(List<Book> booksBorrowed) {
+		this.booksBorrowed = booksBorrowed;
 	}
     
     
