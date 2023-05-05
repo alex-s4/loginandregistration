@@ -22,6 +22,7 @@
 <body>
  	<h1>Welcome, ${loggedUser.getUserName()}</h1>
  	<p>Books from everyone's shelves:</p>
+ 	<a href="../bookmarket">Book Broker</a>
  	<a href="../books/new">+ Add a to my shelf!</a>
  	<a href="../logout">logout</a>
  	
@@ -30,68 +31,23 @@
  			<th>ID</th>
  			<th>Title</th>
  			<th>Author Name</th>
- 			<th>Owner</th>
- 			<th>Actions</th>
+ 			<th>Posted By</th>
+ 			
  		</tr>
  		
  		<c:forEach var="book" items="${books}">
- 		
- 		<c:if test="${!booksBorrowed.contains(book) }">
  		
 	 		<tr>
 	 			<td>${book.getId()}</td>
 	 			<td><a href="../books/${book.getId()}">${book.getTitle()}</a></td>
 	 			<td>${book.getAuthor()}</td>
 	 			<td>${book.getUser().getUserName()}</td>
-	 			<td>
-	 				<c:if test="${loggedUser.getEmail().equals(book.getUser().getEmail())}">
-						<a href="/books/${book.getId()}/edit">edit</a>&nbsp;<a href="/deleteBook/${book.getId()}">delete</a>
-					</c:if>
-					<c:if test="${!loggedUser.getEmail().equals(book.getUser().getEmail())}">
-						<a href="/books/borrow/${book.getId()}">borrow</a>
-					</c:if>
-	 			</td>
+	 			
 	 		</tr>
- 		
- 		</c:if>
  		
  		</c:forEach>
  		
- 		
- 		
  	</table>
- 	
- 	<c:if test="${!loggedUser.getBooksBorrowed().isEmpty()}">
- 	
- 		<p>Books I'm Borrowing...</p>
- 		<table>
-	 		<tr>
-	 			<th>ID</th>
-	 			<th>Title</th>
-	 			<th>Author Name</th>
-	 			<th>Owner</th>
-	 			<th>Actions</th>
-	 		</tr>
-	 		
-	 		<c:forEach var="borrowedBook" items="${booksBorrowed}">
-	 		<tr>
-	 			<td>${borrowedBook.getId()}</td>
-	 			<td><a href="../books/${borrowedBook.getId()}">${borrowedBook.getTitle()}</a></td>
-	 			<td>${borrowedBook.getAuthor()}</td>
-	 			<td>${borrowedBook.getUser().getUserName()}</td>
-	 			<td>
-	 				<a href="/books/return/${borrowedBook.getId()}">return</a>
-	 			</td>
-	 		</tr>
-	 		</c:forEach>
- 		</table>
- 	
- 	
- 	</c:if>
- 	
- 	
- 	
- 	
  	
 </body>
 </html>

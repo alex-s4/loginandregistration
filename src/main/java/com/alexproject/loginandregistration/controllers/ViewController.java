@@ -150,6 +150,21 @@ public class ViewController {
 		return "dashboard.jsp";
 	}
 	
+	@GetMapping("/bookmarket")
+	public String lendingPage(Model mv, HttpSession session)
+	{
+		User activeUser = userServ.getOneUser((Long) session.getAttribute("loggedUser"));
+		List<Book> allBooks = bookServ.findAllBooks();
+		List<Book> booksBorrowed = activeUser.getBooksBorrowed();
+				
+		mv.addAttribute("loggedUser", activeUser);
+		mv.addAttribute("booksBorrowed", booksBorrowed);
+		mv.addAttribute("books", allBooks);
+		
+		
+		return "lendingDashboard.jsp";
+	}
+	
 	@GetMapping("/books/new")
 	public String newBookPage(Model mv, HttpSession session)
 	{
@@ -264,7 +279,7 @@ public class ViewController {
 		System.out.println("Borrowed by:" + activeUser.getEmail() + " is book titled: " + bookToBorrow.getTitle());
 		
 		
-		return "redirect:/books";
+		return "redirect:/bookmarket";
 	}
 	
 	@GetMapping("/books/return/{id}")
@@ -277,7 +292,7 @@ public class ViewController {
 		
 		System.out.println("Returned by:" + activeUser.getEmail() + " is book titled: " + bookToReturn.getTitle());
 		
-		return "redirect:/books";
+		return "redirect:/bookmarket";
 	}
 	
 	

@@ -64,11 +64,11 @@ public class UserService {
 //		System.out.println(user + " " + bookBorrowed);
 		
 		
-		List<Book> booksUnborrowed = bookRepo.findAll();
+//		List<Book> booksUnborrowed = bookRepo.findAll();
 		List<Book> booksBorrowed = user.getBooksBorrowed();
 		
 		booksBorrowed.add(bookBorrowed);
-		booksUnborrowed.remove(bookBorrowed);
+//		booksUnborrowed.remove(bookBorrowed);
 		
 		this.userRepo.save(user);
 	}
